@@ -1,0 +1,1 @@
+1. Listing - with sort2. Searching3. Upload4. Display current dir5. Move to another directory6. Delete7. Copy8. Move9. Create file10. View txt file11. Edit txt file content12. Count of files (ls -l | grep ^- | wc -l)asdfasfasdfasdfdfghdgfh

@@ -1,0 +1,538 @@
+
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Home extends CI_Controller
+{
+    public function __construct(){
+        parent::__construct();
+		$this->load->library('session');
+		$this->load->helper('email');
+		$this->load->helper('captcha');
+		$this->load->model("front/tca_model");
+
+		//$this->load->helper('email');
+		$this->load->model("front/db_model");
+		$this->load->library('frontend_libs');
+		//session_start();
+		//echo $_SESSION['USER_ID'];
+		//echo $_COOKIE['USER_ID'];
+	}
+	
+	public function index()
+    {
+		$aData = $this->frontend_libs->aData();
+		$this->load->view('frontend/tca_header',$aData);
+		$this->load->view('frontend/tca_main',$aData);
+		$this->load->view('frontend/tca_footer',$aData);	
+    }
+	
+	private function _datas()
+	{
+		$captcha = $this->_make_captcha();
+		$sData['base']=$this->config->item('base_url');
+        $sData['page_title'] = 'Ten Cents Auctions';
+		$sData['dates'] = $this->_aArray();
+		$sData['user_id'] = $this->_session_cookie();
+		$sData['is_login'] = $this->_is_login();
+		$sData['captcha'] = $captcha['image'];
+		$_SESSION['captcha'] = $captcha['word'];
+		return $sData;
+	}
+	
+	private function _make_captcha()
+	{
+		$base = $this->config->item('base_url');
+		$vals = array(
+		'img_path' => './captcha/', // PATH for captcha ( *Must mkdir (htdocs)/captcha )
+		'img_url' => $base.'captcha/', // URL for captcha img
+		'img_width' => 127, // width
+		'img_height' => 46 // height
+		); 
+		// Create captcha
+		$cap = create_captcha( $vals ); 
+		return $cap;
+	}
+	
+	private function _session_cookie()
+	{
+		if(isset($_SESSION['USER_ID']) && !empty($_SESSION['USER_ID']))
+		{
+		return $_SESSION['USER_ID'];
+		}
+		else if(isset($_COOKIE['USER_ID']) && !empty($_COOKIE['USER_ID']))
+		{
+		return $_COOKIE['USER_ID'];
+		}
+	}
+	
+	private function _is_login()
+	{
+		$base = $this->config->item('base_url');
+		if($this->_session_cookie() != "")
+		{
+		return '<li><a href="'.$base.'index.php/home/page/mypage">MY PAGE</a></li>
+				<li class="last"><a href="#" onclick="tca.logout_dialog();return false;">LOGOUT</a></li>';
+		}
+		else
+		{
+		return '<li><a href="'.$base.'index.php/home/page/register">REGISTER</a></li>
+				<li class="last"><a href="'.$base.'index.php/home/page/login">LOGIN</a></li>';
+		}
+	}
+   
+	public function page($sPage)
+	{
+		$sData = $this->_datas();
+		$sPage = (empty($sPage))? redirect('index.php/home') : $sPage;
+		$this->_page_holder("tca_".$sPage, $sData);
+	}
+	
+	private function _page_holder($sPage, $sData)
+	{	
+		$this->load->view('frontend/tca_header', $sData);
+		$this->load->view('frontend/'.$sPage, $sData);
+		$this->load->view('frontend/tca_footer', $sData);
+	}
+	
+	public function _aArray()
+	{
+		$aData = array();
+		$aData['month'] = array(	'01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April', '05' => 'May', '06' => 'June',
+									'07' => 'July', '08' => 'August', '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December');
+		$aData['day'] = array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31);
+		
+		$aData['countries'] = array(
+					  "GB" => "United Kingdom",
+					  "US" => "United States",
+					  "AF" => "Afghanistan",
+					  "AL" => "Albania",
+					  "DZ" => "Algeria",
+					  "AS" => "American Samoa",
+					  "AD" => "Andorra",
+					  "AO" => "Angola",
+					  "AI" => "Anguilla",
+					  "AQ" => "Antarctica",
+					  "AG" => "Antigua And Barbuda",
+					  "AR" => "Argentina",
+					  "AM" => "Armenia",
+					  "AW" => "Aruba",
+					  "AU" => "Australia",
+					  "AT" => "Austria",
+					  "AZ" => "Azerbaijan",
+					  "BS" => "Bahamas",
+					  "BH" => "Bahrain",
+					  "BD" => "Bangladesh",
+					  "BB" => "Barbados",
+					  "BY" => "Belarus",
+					  "BE" => "Belgium",
+					  "BZ" => "Belize",
+					  "BJ" => "Benin",
+					  "BM" => "Bermuda",
+					  "BT" => "Bhutan",
+					  "BO" => "Bolivia",
+					  "BA" => "Bosnia And Herzegowina",
+					  "BW" => "Botswana",
+					  "BV" => "Bouvet Island",
+					  "BR" => "Brazil",
+					  "IO" => "British Indian Ocean Territory",
+					  "BN" => "Brunei Darussalam",
+					  "BG" => "Bulgaria",
+					  "BF" => "Burkina Faso",
+					  "BI" => "Burundi",
+					  "KH" => "Cambodia",
+					  "CM" => "Cameroon",
+					  "CA" => "Canada",
+					  "CV" => "Cape Verde",
+					  "KY" => "Cayman Islands",
+					  "CF" => "Central African Republic",
+					  "TD" => "Chad",
+					  "CL" => "Chile",
+					  "CN" => "China",
+					  "CX" => "Christmas Island",
+					  "CC" => "Cocos (Keeling) Islands",
+					  "CO" => "Colombia",
+					  "KM" => "Comoros",
+					  "CG" => "Congo",
+					  "CD" => "Congo, The Democratic Republic Of The",
+					  "CK" => "Cook Islands",
+					  "CR" => "Costa Rica",
+					  "CI" => "Cote D'Ivoire",
+					  "HR" => "Croatia (Local Name: Hrvatska)",
+					  "CU" => "Cuba",
+					  "CY" => "Cyprus",
+					  "CZ" => "Czech Republic",
+					  "DK" => "Denmark",
+					  "DJ" => "Djibouti",
+					  "DM" => "Dominica",
+					  "DO" => "Dominican Republic",
+					  "TP" => "East Timor",
+					  "EC" => "Ecuador",
+					  "EG" => "Egypt",
+					  "SV" => "El Salvador",
+					  "GQ" => "Equatorial Guinea",
+					  "ER" => "Eritrea",
+					  "EE" => "Estonia",
+					  "ET" => "Ethiopia",
+					  "FK" => "Falkland Islands (Malvinas)",
+					  "FO" => "Faroe Islands",
+					  "FJ" => "Fiji",
+					  "FI" => "Finland",
+					  "FR" => "France",
+					  "FX" => "France, Metropolitan",
+					  "GF" => "French Guiana",
+					  "PF" => "French Polynesia",
+					  "TF" => "French Southern Territories",
+					  "GA" => "Gabon",
+					  "GM" => "Gambia",
+					  "GE" => "Georgia",
+					  "DE" => "Germany",
+					  "GH" => "Ghana",
+					  "GI" => "Gibraltar",
+					  "GR" => "Greece",
+					  "GL" => "Greenland",
+					  "GD" => "Grenada",
+					  "GP" => "Guadeloupe",
+					  "GU" => "Guam",
+					  "GT" => "Guatemala",
+					  "GN" => "Guinea",
+					  "GW" => "Guinea-Bissau",
+					  "GY" => "Guyana",
+					  "HT" => "Haiti",
+					  "HM" => "Heard And Mc Donald Islands",
+					  "VA" => "Holy See (Vatican City State)",
+					  "HN" => "Honduras",
+					  "HK" => "Hong Kong",
+					  "HU" => "Hungary",
+					  "IS" => "Iceland",
+					  "IN" => "India",
+					  "ID" => "Indonesia",
+					  "IR" => "Iran (Islamic Republic Of)",
+					  "IQ" => "Iraq",
+					  "IE" => "Ireland",
+					  "IL" => "Israel",
+					  "IT" => "Italy",
+					  "JM" => "Jamaica",
+					  "JP" => "Japan",
+					  "JO" => "Jordan",
+					  "KZ" => "Kazakhstan",
+					  "KE" => "Kenya",
+					  "KI" => "Kiribati",
+					  "KP" => "Korea, Democratic People's Republic Of",
+					  "KR" => "Korea, Republic Of",
+					  "KW" => "Kuwait",
+					  "KG" => "Kyrgyzstan",
+					  "LA" => "Lao People's Democratic Republic",
+					  "LV" => "Latvia",
+					  "LB" => "Lebanon",
+					  "LS" => "Lesotho",
+					  "LR" => "Liberia",
+					  "LY" => "Libyan Arab Jamahiriya",
+					  "LI" => "Liechtenstein",
+					  "LT" => "Lithuania",
+					  "LU" => "Luxembourg",
+					  "MO" => "Macau",
+					  "MK" => "Macedonia, Former Yugoslav Republic Of",
+					  "MG" => "Madagascar",
+					  "MW" => "Malawi",
+					  "MY" => "Malaysia",
+					  "MV" => "Maldives",
+					  "ML" => "Mali",
+					  "MT" => "Malta",
+					  "MH" => "Marshall Islands",
+					  "MQ" => "Martinique",
+					  "MR" => "Mauritania",
+					  "MU" => "Mauritius",
+					  "YT" => "Mayotte",
+					  "MX" => "Mexico",
+					  "FM" => "Micronesia, Federated States Of",
+					  "MD" => "Moldova, Republic Of",
+					  "MC" => "Monaco",
+					  "MN" => "Mongolia",
+					  "MS" => "Montserrat",
+					  "MA" => "Morocco",
+					  "MZ" => "Mozambique",
+					  "MM" => "Myanmar",
+					  "NA" => "Namibia",
+					  "NR" => "Nauru",
+					  "NP" => "Nepal",
+					  "NL" => "Netherlands",
+					  "AN" => "Netherlands Antilles",
+					  "NC" => "New Caledonia",
+					  "NZ" => "New Zealand",
+					  "NI" => "Nicaragua",
+					  "NE" => "Niger",
+					  "NG" => "Nigeria",
+					  "NU" => "Niue",
+					  "NF" => "Norfolk Island",
+					  "MP" => "Northern Mariana Islands",
+					  "NO" => "Norway",
+					  "OM" => "Oman",
+					  "PK" => "Pakistan",
+					  "PW" => "Palau",
+					  "PA" => "Panama",
+					  "PG" => "Papua New Guinea",
+					  "PY" => "Paraguay",
+					  "PE" => "Peru",
+					  "PH" => "Philippines",
+					  "PN" => "Pitcairn",
+					  "PL" => "Poland",
+					  "PT" => "Portugal",
+					  "PR" => "Puerto Rico",
+					  "QA" => "Qatar",
+					  "RE" => "Reunion",
+					  "RO" => "Romania",
+					  "RU" => "Russian Federation",
+					  "RW" => "Rwanda",
+					  "KN" => "Saint Kitts And Nevis",
+					  "LC" => "Saint Lucia",
+					  "VC" => "Saint Vincent And The Grenadines",
+					  "WS" => "Samoa",
+					  "SM" => "San Marino",
+					  "ST" => "Sao Tome And Principe",
+					  "SA" => "Saudi Arabia",
+					  "SN" => "Senegal",
+					  "SC" => "Seychelles",
+					  "SL" => "Sierra Leone",
+					  "SG" => "Singapore",
+					  "SK" => "Slovakia (Slovak Republic)",
+					  "SI" => "Slovenia",
+					  "SB" => "Solomon Islands",
+					  "SO" => "Somalia",
+					  "ZA" => "South Africa",
+					  "GS" => "South Georgia, South Sandwich Islands",
+					  "ES" => "Spain",
+					  "LK" => "Sri Lanka",
+					  "SH" => "St. Helena",
+					  "PM" => "St. Pierre And Miquelon",
+					  "SD" => "Sudan",
+					  "SR" => "Suriname",
+					  "SJ" => "Svalbard And Jan Mayen Islands",
+					  "SZ" => "Swaziland",
+					  "SE" => "Sweden",
+					  "CH" => "Switzerland",
+					  "SY" => "Syrian Arab Republic",
+					  "TW" => "Taiwan",
+					  "TJ" => "Tajikistan",
+					  "TZ" => "Tanzania, United Republic Of",
+					  "TH" => "Thailand",
+					  "TG" => "Togo",
+					  "TK" => "Tokelau",
+					  "TO" => "Tonga",
+					  "TT" => "Trinidad And Tobago",
+					  "TN" => "Tunisia",
+					  "TR" => "Turkey",
+					  "TM" => "Turkmenistan",
+					  "TC" => "Turks And Caicos Islands",
+					  "TV" => "Tuvalu",
+					  "UG" => "Uganda",
+					  "UA" => "Ukraine",
+					  "AE" => "United Arab Emirates",
+					  "UM" => "United States Minor Outlying Islands",
+					  "UY" => "Uruguay",
+					  "UZ" => "Uzbekistan",
+					  "VU" => "Vanuatu",
+					  "VE" => "Venezuela",
+					  "VN" => "Viet Nam",
+					  "VG" => "Virgin Islands (British)",
+					  "VI" => "Virgin Islands (U.S.)",
+					  "WF" => "Wallis And Futuna Islands",
+					  "EH" => "Western Sahara",
+					  "YE" => "Yemen",
+					  "YU" => "Yugoslavia",
+					  "ZM" => "Zambia",
+					  "ZW" => "Zimbabwe"
+					);
+		
+		return $aData;
+	}
+	
+	private function _update_before_logout()
+	{
+		$aData = array('ta_status' => "");
+		$iUserId = $this->_session_cookie();
+		$this->db_model->update_before_logout($aData, $iUserId);
+	}
+	
+	public function tca_switch()
+	{
+		switch($this->input->post('tca_flag'))
+		{
+			case "register":
+				echo $this->_insert();
+			break;
+			
+			case "check_captcha" :
+				$sUserInput = mysql_real_escape_string(stripslashes($_POST['get_data']));
+				if($sUserInput != strtolower($_SESSION['captcha']))
+				{echo "false";}
+				else
+				{echo "true";}
+				
+			
+			break;
+				
+			case "login":
+				$sEmail = $_POST['get_data']['email'];
+				$sPassword = md5($_POST['get_data']['password']);
+				$iRemember = $_POST['get_data']['remember'];
+				$sResult = $this->db_model->login_user($sEmail, $sPassword);
+				if(!empty($sResult))
+				{
+					$iIdx = (int)$sResult;
+					if($iRemember == 0)
+					{$_SESSION['USER_ID'] = $iIdx;}
+					else
+					{setcookie('USER_ID', $iIdx, time()+259200);}
+					$this->db_model->update_activities(1, $iIdx);
+				}	
+				echo $sResult;			
+			break;
+				
+			case "msg_to_admin":
+				$this->db_model->update_activities(3, $this->_session_cookie());
+				$aData = array(
+					'tm_tu_idx' => mysql_real_escape_string(stripslashes($_POST['get_data']['user_id'])),
+					'tm_recipient' => 1,
+					'tm_status' => 'new',
+					'tm_subject' => mysql_real_escape_string(stripslashes($_POST['get_data']['subject'])),
+					'tm_message' => mysql_real_escape_string(stripslashes($_POST['get_data']['message'])),
+					'tm_flag' => 1,
+					'tm_datetime_send' => mysql_real_escape_string(stripslashes(date('Y-m-d h:i:s')))
+					);
+				$this->db_model->msg_to_admin($aData);
+			break;
+			
+			case "forgot_pass":
+				$sResults = $this->db_model->email_exist($this->input->post('get_data'));
+				if( $sResults['count'] == 0)
+				{echo 0;}
+				else
+				{
+				$sNewPassword = $this->_rand_word(8);
+				$sUserEmail = $this->input->post('get_data');
+				$iUserOrAdmin = $sResults['query'][0]['ta_flag'];
+					if($iUserOrAdmin == 1)
+					{echo "Email doesn't exist.";}
+					else
+					{
+						$to = $sUserEmail;
+						$subject = "Your new password from 10 CENTS AUCTIONS";
+						$from = "10 CENTS AUCTIONS";
+						$message = "Dear user, this is you new password ".$sNewPassword;
+						$headers  = "MIME-Version: 1.0" . "\r\n";
+						$headers .= "Content-type: text/html; charset=iso-8859-1" . "\r\n";
+						$headers .= "From:".$from;
+						if(mail($to,$subject,$message,$headers))
+						echo "Your new password will be send to your email ".$to." momentarily.";
+						else
+						echo "Internal error, please try again.";
+
+						// $this->email->from("10cents@auction.com");
+						// $this->email->to($sUserEmail);
+						// $this->email->subject("Your new password.");
+						// $this->email->message("This is your new password ".$sNewPassword."");
+						// $this->email->send();
+						// echo $this->email->print_debugger();
+					}
+				}
+			break;
+				
+			case "logout_user":
+				$this->db_model->update_activities(2, $this->_session_cookie());
+				$this->_update_before_logout();
+				unset($_SESSION['USER_ID']);
+				setcookie('USER_ID', "", time()-259200);
+				session_destory();			
+			break;
+			
+			case  "browser_close_update" :
+				
+				echo "wwwww";
+			break;
+				
+		}
+		
+	}
+	
+	private function _send_to()
+	{
+	$to = $aRow['freg_email'];
+	$subject = "Simplexi Academy Password Retrieval";
+	$message = "Hi, ".$aRow['freg_fname'].","."\n\n This is your password: ".$aRow['freg_password'];
+	$from = "devmoli.dev.com";
+	$headers  = "MIME-Version: 1.0" . "\r\n";
+	$headers .= "Content-type: text/html; charset=iso-8859-1" . "\r\n";
+	$headers .= "From:".$from;
+
+	mail($to,$subject,$message,$headers);
+	
+	}
+	
+	private function _insert() //register part
+	{
+		$sEmail = mysql_real_escape_string(stripslashes($_POST['get_data']['tca_inputs'][3]));
+		$iEmail_exist = $this->db_model->email_exist($sEmail);
+		if($iEmail_exist['count'] == 0)
+		{
+				$aData = array(
+						'tu_fname' => mysql_real_escape_string(stripslashes($_POST['get_data']['tca_inputs'][0])),
+						'tu_lname' => mysql_real_escape_string(stripslashes($_POST['get_data']['tca_inputs'][1])),
+						'tu_mname' => mysql_real_escape_string(stripslashes($_POST['get_data']['tca_inputs'][2])),
+						'tu_birthdate' => mysql_real_escape_string(stripslashes($_POST['get_data']['tca_date'])),	
+						'tu_datetime_register' => mysql_real_escape_string(stripslashes(date('Y-m-d h:i:s')))
+						);
+				$iLastId = $this->db_model->register_user($aData);
+				$this->db_model->update_activities(4, $iLastId);
+				
+				$aData2 = array(
+						'ta_tu_idx' => $iLastId,
+						'ta_email' => $sEmail,
+						'ta_password' => md5(mysql_real_escape_string(stripslashes($_POST['get_data']['tca_inputs'][4])))
+						);
+				$this->db_model->register_account($aData2);
+		}
+		else
+		{
+			return "false";
+		}
+		
+	}
+	
+	private function _rand_word($ilength)
+	{
+	$sRand = "";
+	$sCharset = "abcdefghijklmnopqrstuvwxyz1234567890";
+		for($i = 0; $i < $ilength; $i++)
+		{
+		$rand = rand() % strlen($sCharset);
+		$rand_holder = substr($sCharset, $rand, 1);
+		$sRand .= $rand_holder;
+		}
+	return $sRand;
+	}
+	
+	public function captcha()
+	{
+		
+		$base = $this->config->item('base_url');
+		$this->load->plugin('captcha');
+				
+		$vals = array(
+		'word'	 => 'Random word',
+		'img_path'	 => './captcha/',
+		'img_url'	 => $base.'index.php/home/captcha/',
+		'font_path'	 => 'arial.ttf',
+		'img_width'	 => '150',
+		'img_height' => 30,
+		'expiration' => 7200
+		);
+
+		$cap = create_captcha($vals);
+		echo $cap['image'];
+		var_dump( $cap['image']);
+		
+	}
+
+	
+}
+?>

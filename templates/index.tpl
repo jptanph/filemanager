@@ -1,0 +1,3 @@
+{$indexHeader}
+{$indexBody}
+{$indexFooter}

@@ -1,0 +1,80 @@
+<?php /* Smarty version Smarty-3.0.8, created on 2011-09-20 12:00:55
+         compiled from "templates/index-backup-form.tpl" */ ?>
+<?php /*%%SmartyHeaderCode:572670454e780ff76bc8b9-14795408%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+$_smarty_tpl->decodeProperties(array (
+  'file_dependency' => 
+  array (
+    'd6a26d663d1bf3f99b9724e92102e6df0c4f1155' => 
+    array (
+      0 => 'templates/index-backup-form.tpl',
+      1 => 1316491252,
+      2 => 'file',
+    ),
+  ),
+  'nocache_hash' => '572670454e780ff76bc8b9-14795408',
+  'function' => 
+  array (
+  ),
+  'has_nocache_code' => false,
+)); /*/%%SmartyHeaderCode%%*/?>
+
+<div id="backup-loader" style="display:none">
+	<br />
+	<br />
+	<center>
+		<img src="images/uploader.gif" /> <br />
+		<b style="font-size:11px">Processing.. Please wait..</b>
+	</center>
+	<br />
+	<br />
+</div>
+
+
+<div id="backup-list" style="display:none">
+	<br />
+	<br />
+	<center>
+	<b style='font-size:11px'>Backup done. Do you want to view the backup list?</b><br /><br />
+	<input type="button" value=" View " onClick="File_manager.execBackupList();" /> <input type="button" value=" Logs " id="view-logs" onClick="File_manager.execViewLogs()" /> <input type="button" value="Close"  onClick="File_manager.execClose('backup-form')"/>
+	<br />
+	<br />
+	</center>
+	<div id="log-area" style="display:none;">
+	<hr size="1" />
+	<br />
+	<b style='font-size:11px'>Backup log : </b><br /><br />
+	<textarea id="backup-log" readonly="true" style="color:white;background-color:black;font-size:11px;border:solid 1px gray" rows="7" cols="52"></textarea>
+	<br />
+	<br />
+	</div>
+	
+	<br />
+	<br />
+</div>
+
+<table width="300px" style="margin:15px;border:solid 1px white" cellpadding="3" cellspacing="3" align="center" id="backup-confirm">
+	<tr>
+		<td align="center" valign="middle">
+			<span><img src="images/bg_warn_box.gif" /> Do you want to backup all your files?</span>
+			<br /><br />
+			<input type="button" value="Backup" onClick="File_manager.execFileBackup();" /> <input type="button" value="Close"  onClick="File_manager.execClose('backup-form')"/>
+		</td>
+	</tr>
+</table>
+
+
+<script type="text/javascript">
+$(function(){
+	$("input:button").button().css('font-size','11px');
+	$("input:submit").button().css('font-size','11px');		
+	$("#backup-form").dialog({				
+		width:'390',
+		resizable:true,
+		modal:true
+	});	
+	var flip = 0;
+	$("#view-logs").click(function(){
+		$("#log-area").toggle();
+	})
+})
+</script>
